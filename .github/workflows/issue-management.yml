@@ -106,23 +106,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.payload.issue.number,
-                body: `👋 Welcome to NellyBot, @${context.payload.issue.user.login}!
-
-Thanks for opening your first issue. Here are some helpful resources:
-
-🤖 **About NellyBot**: This is a cyberpunk-themed Discord bot with RPG elements and privacy-first character creation.
-
-📚 **Resources**:
-- 📖 [Documentation](https://github.com/northenfreyja/NellyBot/blob/master/README.md)
-- 🗺️ [Roadmap](https://nellybotdevelopment.featurebase.app/roadmap)
-- 💡 [Feature Requests](https://nellybotdevelopment.featurebase.app)
-- 🤝 [Contributing Guidelines](https://github.com/northenfreyja/NellyBot/blob/master/CONTRIBUTING.md)
-
-⏰ **Response Time**: We typically respond to issues within 24-48 hours.
-
-🏷️ **Labels**: Your issue has been automatically labeled based on its content. A maintainer will review and adjust labels as needed.
-
-Thanks for contributing to the cyberpunk future!`
+                body: `👋 Welcome to NellyBot, @${context.payload.issue.user.login}!\n\nThanks for opening your first issue. Here are some helpful resources:\n\n🤖 **About NellyBot**: This is a cyberpunk-themed Discord bot with RPG elements and privacy-first character creation.\n\n📚 **Resources**:\n- 📖 [Documentation](https://github.com/northenfreyja/NellyBot/blob/master/README.md)\n- 🗺️ [Roadmap](https://nellybotdevelopment.featurebase.app/roadmap)\n- 💡 [Feature Requests](https://nellybotdevelopment.featurebase.app)\n- 🤝 [Contributing Guidelines](https://github.com/northenfreyja/NellyBot/blob/master/CONTRIBUTING.md)\n\n⏰ **Response Time**: We typically respond to issues within 24-48 hours.\n\n🏷️ **Labels**: Your issue has been automatically labeled based on its content. A maintainer will review and adjust labels as needed.\n\nThanks for contributing to the cyberpunk future!`
               });
             }
 
@@ -180,17 +164,7 @@ Thanks for contributing to the cyberpunk future!`
 
             // Provide feedback if needed
             if (feedback.length > 0) {
-              const comment = `🤖 **Automated Issue Review**
-
-${needsImprovement ? '⚠️ This issue could be improved with additional information:' : 'ℹ️ Some helpful notes:'}
-
-${feedback.map(item => '- ' + item).join('\n')}
-
-${needsImprovement ? '\n📝 **Next Steps**: Please consider updating your issue with the suggested information. This will help us provide better assistance!' : ''}
-
-✅ **Good to know**: Your issue has been received and will be reviewed by a maintainer soon.
-
-*This is an automated message to help improve issue quality.*`;
+              const comment = `🤖 **Automated Issue Review**\n\n${needsImprovement ? '⚠️ This issue could be improved with additional information:' : 'ℹ️ Some helpful notes:'}\n\n${feedback.map(item => '- ' + item).join('\n')}\n\n${needsImprovement ? '📝 **Next Steps**: Please consider updating your issue with the suggested information. This will help us provide better assistance!' : ''}\n\n✅ **Good to know**: Your issue has been received and will be reviewed by a maintainer soon.\n\n*This is an automated message to help improve issue quality.*`;
 
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -241,28 +215,7 @@ ${needsImprovement ? '\n📝 **Next Steps**: Please consider updating your issue
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                body: `🚀 **Feature Request Detected**
-
-Thank you for your feature suggestion! To better manage and prioritize feature requests, we use a dedicated platform:
-
-🌟 **Please submit your feature request here**: https://nellybotdevelopment.featurebase.app
-
-**Benefits of using our feature portal**:
-- 🗳️ **Community voting** on features
-- 🗺️ **Roadmap integration**
-- 📊 **Better tracking** and prioritization
-- 💬 **Discussion** with other users
-
-**What happens next**:
-1. Submit your idea on Featurebase
-2. The community can vote and discuss
-3. Popular features get prioritized on our roadmap
-4. You'll be notified of implementation progress
-
-This GitHub issue will be closed in favor of the Featurebase system. Thank you for understanding! 🤖
-
----
-*If this is actually a bug report or question, please let us know and we'll reopen it.*`
+                body: `🚀 **Feature Request Detected**\n\nThank you for your feature suggestion! To better manage and prioritize feature requests, we use a dedicated platform:\n\n🌟 **Please submit your feature request here**: https://nellybotdevelopment.featurebase.app\n\n**Benefits of using our feature portal**:\n- 🗳️ **Community voting** on features\n- 🗺️ **Roadmap integration**\n- 📊 **Better tracking** and prioritization\n- 💬 **Discussion** with other users\n\n**What happens next**:\n1. Submit your idea on Featurebase\n2. The community can vote and discuss\n3. Popular features get prioritized on our roadmap\n4. You'll be notified of implementation progress\n\nThis GitHub issue will be closed in favor of the Featurebase system. Thank you for understanding!\n\n---\n*If this is actually a bug report or question, please let us know and we'll reopen it.*`
               });
 
               // Add label for tracking
