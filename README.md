@@ -2,6 +2,9 @@
 
 A privacy-first cyberpunk Discord bot with immersive character creation, RPG mechanics, and Night City atmosphere. Jack into the matrix, create your digital persona, and climb the corporate ladder through hacking and street smarts.
 
+[![🤖 Bot Functionality Tests](https://github.com/northenfreyja/NellyBot/actions/workflows/bot-tests.yml/badge.svg)](https://github.com/northenfreyja/NellyBot/actions/workflows/bot-tests.yml)
+[![🔍 CodeQL Security Analysis](https://github.com/northenfreyja/NellyBot/actions/workflows/codeql.yml/badge.svg)](https://github.com/northenfreyja/NellyBot/actions/workflows/codeql.yml)
+
 ![GitHub last commit](https://img.shields.io/github/last-commit/northenfreyja/NellyBot)
 ![GitHub issues](https://img.shields.io/github/issues/northenfreyja/NellyBot)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/northenfreyja/NellyBot)
