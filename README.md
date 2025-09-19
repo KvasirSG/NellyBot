@@ -49,8 +49,8 @@ A privacy-first cyberpunk Discord bot with immersive character creation, RPG mec
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
-   cd discordBot
+   git clone https://github.com/northenfreyja/NellyBot.git
+   cd NellyBot
    ```
 
 2. **Install dependencies**
@@ -68,7 +68,6 @@ A privacy-first cyberpunk Discord bot with immersive character creation, RPG mec
    DISCORD_TOKEN=your_discord_bot_token_here
    CLIENT_ID=your_client_id_here
    GUILD_ID=your_guild_id_here  # Optional, for faster command deployment
-   # BOT_OWNER_ID no longer needed - automatic owner detection
    ```
 
 4. **Start the bot**
