@@ -86,8 +86,8 @@ jobs:
         run: |
           echo "Checking privacy compliance patterns..."
 
-          # Check for proper user data handling
-          if grep -r "console\.log.*user\." --include="*.js" --exclude-dir=node_modules .; then
+          # Check for proper user data handling (exclude bot's own user data)
+          if grep -r "console\.log.*user\." --include="*.js" --exclude-dir=node_modules . | grep -v "client\.user"; then
             echo "::error::Potential user data logging detected!"
             exit 1
           fi
