@@ -208,6 +208,8 @@ async function handleButtonInteraction(interaction, db) {
         await handlePrivacyInteraction(interaction, db);
     } else if (customId.startsWith('create_character_')) {
         await handleCharacterCreationStart(interaction, db);
+    } else if (customId.startsWith('view_backstory_')) {
+        await handleBackstoryView(interaction, db);
     }
 }
 
@@ -556,4 +558,35 @@ async function handleCharacterCreationModal(interaction, db) {
     const selectMenu = createBackgroundSelectMenu(interaction.user.id);
 
     await interaction.reply({ embeds: [embed], components: [selectMenu], ephemeral: true });
+}
+
+async function handleBackstoryView(interaction, db) {
+    const userId = interaction.customId.split('_')[2];
+
+    // Verify the user clicking is the same as the target user
+    if (interaction.user.id !== userId) {
+        await interaction.reply({
+            content: '⚠️ This backstory is not for you.',
+            ephemeral: true
+        });
+        return;
+    }
+
+    const user = await db.getUser(interaction.user.id);
+    if (!user || !user.backstory || !user.backstory.trim()) {
+        await interaction.reply({
+            content: '⚠️ No backstory found for your character.',
+            ephemeral: true
+        });
+        return;
+    }
+
+    const displayName = user.street_name || interaction.user.username;
+    const embed = createCyberpunkEmbed(
+        `${displayName}'s Backstory`,
+        `📖 **Character History**\n\n*"${user.backstory}"*\n\n*—${displayName}, Night City Resident*`,
+        colors.info
+    );
+
+    await interaction.reply({ embeds: [embed], ephemeral: true });
 }

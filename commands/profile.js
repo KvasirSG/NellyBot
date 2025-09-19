@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { createCyberpunkEmbed, colors } = require('../utils/embeds');
 const { BACKGROUNDS, getBackgroundEmoji } = require('../utils/character');
 
@@ -49,9 +49,7 @@ module.exports = {
                 characterInfo += `${getBackgroundEmoji(user.background)} **Background:** ${backgroundData.name}\n`;
             }
         }
-        if (user.backstory && user.backstory.trim()) {
-            characterInfo += `📖 **Backstory:** *"${user.backstory}"*\n`;
-        }
+        // Backstory will be shown via button instead
         if (characterInfo) characterInfo += '\n';
 
         const displayName = user.street_name || interaction.user.username;
@@ -77,6 +75,19 @@ module.exports = {
             colors.primary
         );
 
-        await interaction.reply({ embeds: [embed] });
+        // Add backstory button if user has one
+        const components = [];
+        if (user.backstory && user.backstory.trim()) {
+            const backstoryButton = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`view_backstory_${interaction.user.id}`)
+                        .setLabel('📖 View Backstory')
+                        .setStyle(ButtonStyle.Secondary)
+                );
+            components.push(backstoryButton);
+        }
+
+        await interaction.reply({ embeds: [embed], components });
     }
 };
