@@ -32,7 +32,6 @@ module.exports = {
         skills.forEach(skill => {
             const currentLevel = user[skill] || 0;
             const cost = (currentLevel + 1) * 100;
-            const canUpgrade = currentLevel < skillLevelCap && user.credits >= cost;
 
             if (currentLevel < skillLevelCap) {
                 availableUpgrades++;

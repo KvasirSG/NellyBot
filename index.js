@@ -79,7 +79,7 @@ async function deployCommands() {
 }
 
 // Enhanced ready event
-client.once('ready', async () => {
+client.once('clientReady', async () => {
     console.log(`🤖 ${client.user.tag} is now online in Night City!`);
     console.log('🔌 Cyberpunk RPG Bot initialized');
     console.log(`📊 Monitoring ${client.guilds.cache.size} server(s)`);

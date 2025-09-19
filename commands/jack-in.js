@@ -30,7 +30,7 @@ module.exports = {
                     `Type \`/profile\` to view your complete character sheet.`,
                     colors.info
                 );
-                await interaction.reply({ embeds: [embed] });
+                await interaction.reply({ embeds: [embed], ephemeral: true });
                 return;
             }
 
@@ -38,14 +38,14 @@ module.exports = {
             if (characterStatus.hasPrivacyConsent) {
                 const embed = createCharacterCreationEmbed();
                 const button = createCharacterCreationButton(interaction.user.id);
-                await interaction.reply({ embeds: [embed], components: [button] });
+                await interaction.reply({ embeds: [embed], components: [button], ephemeral: true });
                 return;
             }
 
             // First time user - show privacy consent
             const embed = createPrivacyConsentEmbed();
             const buttons = createPrivacyConsentButtons(interaction.user.id);
-            await interaction.reply({ embeds: [embed], components: [buttons] });
+            await interaction.reply({ embeds: [embed], components: [buttons], ephemeral: true });
 
         } catch (error) {
             console.error('Error in jack-in command:', error);

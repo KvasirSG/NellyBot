@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { createCyberpunkEmbed, colors } = require('../utils/embeds');
 const { canManageBot, isStrictOwner } = require('../utils/permissions');
 

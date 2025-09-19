@@ -555,5 +555,5 @@ async function handleCharacterCreationModal(interaction, db) {
     const embed = createBackgroundSelectEmbed();
     const selectMenu = createBackgroundSelectMenu(interaction.user.id);
 
-    await interaction.reply({ embeds: [embed], components: [selectMenu] });
+    await interaction.reply({ embeds: [embed], components: [selectMenu], ephemeral: true });
 }
