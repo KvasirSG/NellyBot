@@ -9,7 +9,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('stats')
-                .setDescription('Show bot statistics and system info'))
+                .setDescription('[Owner Only] Show bot statistics and system info'))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('shutdown')
@@ -17,7 +17,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('reset-user')
-                .setDescription('Reset a user\'s data')
+                .setDescription('[Owner Only] Reset a user\'s data')
                 .addUserOption(option =>
                     option.setName('user')
                         .setDescription('User to reset')
@@ -25,7 +25,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('give-credits')
-                .setDescription('Give credits to a user')
+                .setDescription('[Owner Only] Give credits to a user')
                 .addUserOption(option =>
                     option.setName('user')
                         .setDescription('User to give credits to')
@@ -72,6 +72,18 @@ module.exports = {
 };
 
 async function handleStats(interaction, client, db) {
+    // This command requires strict owner permissions
+    const isOwner = await isStrictOwner(client, interaction.user.id);
+    if (!isOwner) {
+        const embed = createCyberpunkEmbed(
+            'Access Denied',
+            '🚫 **OWNER ONLY COMMAND**\n\nOnly the bot owner can view sensitive bot statistics.',
+            colors.danger
+        );
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+        return;
+    }
+
     try {
         // Get database stats
         const userCount = await db.getUserCount();
@@ -134,6 +146,18 @@ async function handleShutdown(interaction, client) {
 }
 
 async function handleResetUser(interaction, db) {
+    // This command requires strict owner permissions
+    const isOwner = await isStrictOwner(interaction.client, interaction.user.id);
+    if (!isOwner) {
+        const embed = createCyberpunkEmbed(
+            'Access Denied',
+            '🚫 **OWNER ONLY COMMAND**\n\nOnly the bot owner can reset user data. This prevents economy manipulation.',
+            colors.danger
+        );
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+        return;
+    }
+
     const targetUser = interaction.options.getUser('user');
 
     try {
@@ -171,6 +195,18 @@ async function handleResetUser(interaction, db) {
 }
 
 async function handleGiveCredits(interaction, db) {
+    // This command requires strict owner permissions
+    const isOwner = await isStrictOwner(interaction.client, interaction.user.id);
+    if (!isOwner) {
+        const embed = createCyberpunkEmbed(
+            'Access Denied',
+            '🚫 **OWNER ONLY COMMAND**\n\nOnly the bot owner can give credits. This prevents economy manipulation.',
+            colors.danger
+        );
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+        return;
+    }
+
     const targetUser = interaction.options.getUser('user');
     const amount = interaction.options.getInteger('amount');
 

@@ -101,12 +101,12 @@ A privacy-first cyberpunk Discord bot with immersive character creation, RPG mec
 | `/upgrade <stat>` | Upgrade cybernetics and skills (with confirmation) | - |
 | `/leaderboard` | View top netrunners | - |
 
-### 🛡️ **Admin Commands** *(Owner/Admin Only)*
+### 🛡️ **Admin Commands** *(Owner Only)*
 | Command | Description | Access |
 |---------|-------------|--------|
-| `/admin stats` | View bot statistics and system info | Admin+ |
-| `/admin reset-user` | Reset a user's profile data | Admin+ |
-| `/admin give-credits` | Give credits to a user | Admin+ |
+| `/admin stats` | View bot statistics and system info | Owner Only |
+| `/admin reset-user` | Reset a user's profile data | Owner Only |
+| `/admin give-credits` | Give credits to a user | Owner Only |
 | `/admin shutdown` | Safely shutdown the bot | Owner Only |
 
 *Hack cooldowns only apply after failed attempts. Successful hacks have no cooldown!*
