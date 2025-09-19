@@ -1,4 +1,5 @@
 const { createCharacterRequiredEmbed } = require('./character');
+const { MessageFlags } = require('discord.js');
 
 /**
  * Command locking utility to ensure users have created characters before using commands
@@ -40,7 +41,7 @@ async function canUseCommand(db, interaction) {
  */
 async function handleRestrictedCommand(interaction) {
     const embed = createCharacterRequiredEmbed(interaction.commandName);
-    await interaction.reply({ embeds: [embed], ephemeral: true });
+    await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 }
 
 /**

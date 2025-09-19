@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
 const { createCyberpunkEmbed, colors } = require('../utils/embeds');
 
 module.exports = {
@@ -91,7 +91,7 @@ module.exports = {
         await interaction.reply({
             embeds: [embed],
             components: [row, infoRow],
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
     }
 };

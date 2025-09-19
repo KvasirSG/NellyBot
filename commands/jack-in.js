@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { createCyberpunkEmbed, colors } = require('../utils/embeds');
 const {
     createPrivacyConsentEmbed,
@@ -30,7 +30,7 @@ module.exports = {
                     `Type \`/profile\` to view your complete character sheet.`,
                     colors.info
                 );
-                await interaction.reply({ embeds: [embed], ephemeral: true });
+                await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
                 return;
             }
 
@@ -38,14 +38,14 @@ module.exports = {
             if (characterStatus.hasPrivacyConsent) {
                 const embed = createCharacterCreationEmbed();
                 const button = createCharacterCreationButton(interaction.user.id);
-                await interaction.reply({ embeds: [embed], components: [button], ephemeral: true });
+                await interaction.reply({ embeds: [embed], components: [button], flags: MessageFlags.Ephemeral });
                 return;
             }
 
             // First time user - show privacy consent
             const embed = createPrivacyConsentEmbed();
             const buttons = createPrivacyConsentButtons(interaction.user.id);
-            await interaction.reply({ embeds: [embed], components: [buttons], ephemeral: true });
+            await interaction.reply({ embeds: [embed], components: [buttons], flags: MessageFlags.Ephemeral });
 
         } catch (error) {
             console.error('Error in jack-in command:', error);
@@ -54,7 +54,7 @@ module.exports = {
                 '⚠️ **CONNECTION FAILED**\n\nThere was an error initializing your neural interface. Please try again.',
                 colors.danger
             );
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
         }
     }
 };

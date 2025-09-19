@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { createCyberpunkEmbed, colors } = require('../utils/embeds');
 const { canManageBot, isStrictOwner } = require('../utils/permissions');
 
@@ -48,7 +48,7 @@ module.exports = {
                 '🚫 **UNAUTHORIZED ACCESS**\n\nYou need Administrator permissions or be a bot owner to use admin commands.',
                 colors.danger
             );
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             return;
         }
 
@@ -99,7 +99,7 @@ async function handleStats(interaction, client, db) {
         console.error('Error in admin stats:', error);
         await interaction.reply({
             content: '⚠️ Error retrieving bot statistics.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
     }
 }
@@ -113,7 +113,7 @@ async function handleShutdown(interaction, client) {
             '🚫 **OWNER ONLY COMMAND**\n\nOnly the bot owner can shut down the bot.',
             colors.danger
         );
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
         return;
     }
 
@@ -141,7 +141,7 @@ async function handleResetUser(interaction, db) {
         if (!user) {
             await interaction.reply({
                 content: `⚠️ User ${targetUser.tag} is not registered in the database.`,
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
             return;
         }
@@ -165,7 +165,7 @@ async function handleResetUser(interaction, db) {
         console.error('Error resetting user:', error);
         await interaction.reply({
             content: '⚠️ Error resetting user data.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
     }
 }
@@ -179,7 +179,7 @@ async function handleGiveCredits(interaction, db) {
         if (!user) {
             await interaction.reply({
                 content: `⚠️ User ${targetUser.tag} is not registered. They need to use \`/jack-in\` first.`,
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
             return;
         }
@@ -205,7 +205,7 @@ async function handleGiveCredits(interaction, db) {
         console.error('Error giving credits:', error);
         await interaction.reply({
             content: '⚠️ Error processing credit transfer.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
     }
 }

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
 const { createCyberpunkEmbed, colors } = require('../utils/embeds');
 const { BACKGROUNDS, getBackgroundEmoji } = require('../utils/character');
 
@@ -16,7 +16,7 @@ module.exports = {
                 '🔌 **NEURAL INTERFACE OFFLINE**\n\nYou need to create a character first.\n\nUse `/jack-in` to begin your journey in Night City.',
                 colors.warning
             );
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             return;
         }
 

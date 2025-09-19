@@ -1,4 +1,5 @@
 const { createCyberpunkEmbed, colors } = require('../utils/embeds');
+const { MessageFlags } = require('discord.js');
 const { checkCommandAccess } = require('../utils/commandLock');
 
 module.exports = {
@@ -22,7 +23,7 @@ module.exports = {
 
                 const errorMessage = {
                     content: '⚠️ **SYSTEM ERROR**: Failed to execute command. Neural pathways may be unstable.',
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 };
 
                 if (interaction.replied || interaction.deferred) {
@@ -39,7 +40,7 @@ module.exports = {
 
                 const errorMessage = {
                     content: '⚠️ **INTERFACE ERROR**: Button malfunction detected.',
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 };
 
                 if (interaction.replied || interaction.deferred) {
@@ -56,7 +57,7 @@ module.exports = {
 
                 const errorMessage = {
                     content: '⚠️ **INTERFACE ERROR**: Menu malfunction detected.',
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 };
 
                 if (interaction.replied || interaction.deferred) {
@@ -73,7 +74,7 @@ module.exports = {
 
                 const errorMessage = {
                     content: '⚠️ **INTERFACE ERROR**: Modal processing failed.',
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 };
 
                 if (interaction.replied || interaction.deferred) {
@@ -98,7 +99,7 @@ async function handleButtonInteraction(interaction, db) {
         if (interaction.user.id !== userId) {
             await interaction.reply({
                 content: '⚠️ This upgrade confirmation is not for you, choom.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
             return;
         }
@@ -107,7 +108,7 @@ async function handleButtonInteraction(interaction, db) {
         if (!user) {
             await interaction.reply({
                 content: '⚠️ User profile not found. Use `/jack-in` first.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
             return;
         }
@@ -190,7 +191,7 @@ async function handleButtonInteraction(interaction, db) {
         if (interaction.user.id !== userId) {
             await interaction.reply({
                 content: '⚠️ This is not your upgrade menu, choom.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
             return;
         }
@@ -225,7 +226,7 @@ async function handleHackInteraction(interaction, db) {
     if (interaction.user.id !== userId) {
         await interaction.reply({
             content: '⚠️ This hack session is not for you, choom.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -263,7 +264,7 @@ async function handleHackInteraction(interaction, db) {
     if (!user) {
         await interaction.reply({
             content: '⚠️ User profile not found. Use `/jack-in` first.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -378,7 +379,7 @@ async function handlePrivacyInteraction(interaction, db) {
     if (interaction.user.id !== userId) {
         await interaction.reply({
             content: '⚠️ This privacy consent is not for you.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -410,7 +411,7 @@ async function handleCharacterCreationStart(interaction, db) {
     if (interaction.user.id !== userId) {
         await interaction.reply({
             content: '⚠️ This character creation is not for you.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -420,7 +421,7 @@ async function handleCharacterCreationStart(interaction, db) {
     if (!characterStatus.hasPrivacyConsent) {
         await interaction.reply({
             content: '⚠️ You must accept privacy terms first. Use `/jack-in` to start over.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -450,7 +451,7 @@ async function handleBackgroundSelection(interaction, db) {
     if (interaction.user.id !== userId) {
         await interaction.reply({
             content: '⚠️ This character creation is not for you.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -461,7 +462,7 @@ async function handleBackgroundSelection(interaction, db) {
     if (!backgroundData) {
         await interaction.reply({
             content: '⚠️ Invalid background selection.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -471,7 +472,7 @@ async function handleBackgroundSelection(interaction, db) {
     if (!user || !user.street_name) {
         await interaction.reply({
             content: '⚠️ Character creation data not found. Please restart with `/jack-in`.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -520,7 +521,7 @@ async function handleCharacterCreationModal(interaction, db) {
     if (interaction.user.id !== userId) {
         await interaction.reply({
             content: '⚠️ This character creation is not for you.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -532,7 +533,7 @@ async function handleCharacterCreationModal(interaction, db) {
     if (streetName.length < 2 || streetName.length > 32) {
         await interaction.reply({
             content: '⚠️ Street name must be between 2 and 32 characters.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -542,7 +543,7 @@ async function handleCharacterCreationModal(interaction, db) {
     if (inappropriateWords.some(word => streetName.toLowerCase().includes(word))) {
         await interaction.reply({
             content: '⚠️ Street name contains inappropriate content.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -557,7 +558,7 @@ async function handleCharacterCreationModal(interaction, db) {
     const embed = createBackgroundSelectEmbed();
     const selectMenu = createBackgroundSelectMenu(interaction.user.id);
 
-    await interaction.reply({ embeds: [embed], components: [selectMenu], ephemeral: true });
+    await interaction.reply({ embeds: [embed], components: [selectMenu], flags: MessageFlags.Ephemeral });
 }
 
 async function handleBackstoryView(interaction, db) {
@@ -567,7 +568,7 @@ async function handleBackstoryView(interaction, db) {
     if (interaction.user.id !== userId) {
         await interaction.reply({
             content: '⚠️ This backstory is not for you.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -576,7 +577,7 @@ async function handleBackstoryView(interaction, db) {
     if (!user || !user.backstory || !user.backstory.trim()) {
         await interaction.reply({
             content: '⚠️ No backstory found for your character.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -588,5 +589,5 @@ async function handleBackstoryView(interaction, db) {
         colors.info
     );
 
-    await interaction.reply({ embeds: [embed], ephemeral: true });
+    await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 }

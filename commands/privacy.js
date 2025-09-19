@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { createCyberpunkEmbed, colors } = require('../utils/embeds');
 
 module.exports = {
@@ -45,7 +45,7 @@ async function handleViewData(interaction, db) {
                 '📭 **NO STORED DATA**\n\nYou have no data stored in our systems.\n\nUse `/jack-in` to create a character profile.',
                 colors.info
             );
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             return;
         }
 
@@ -93,13 +93,13 @@ async function handleViewData(interaction, db) {
             colors.info
         );
 
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 
     } catch (error) {
         console.error('Error viewing privacy data:', error);
         await interaction.reply({
             content: '⚠️ Error retrieving your data. Please try again.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
     }
 }
@@ -114,7 +114,7 @@ async function handleDeleteData(interaction, db) {
                 '📭 **NO STORED DATA**\n\nYou have no data stored in our systems.',
                 colors.info
             );
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             return;
         }
 
@@ -134,7 +134,7 @@ async function handleDeleteData(interaction, db) {
             colors.warning
         );
 
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 
         console.log('User data deletion completed successfully');
 
@@ -142,7 +142,7 @@ async function handleDeleteData(interaction, db) {
         console.error('Error deleting user data:', error);
         await interaction.reply({
             content: '⚠️ Error deleting your data. Please contact an administrator.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
     }
 }
@@ -157,7 +157,7 @@ async function handleExportData(interaction, db) {
                 '📭 **NO STORED DATA**\n\nYou have no data stored in our systems.',
                 colors.info
             );
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             return;
         }
 
@@ -182,7 +182,7 @@ async function handleExportData(interaction, db) {
                 `Contact an administrator for the complete export file.`,
                 colors.info
             );
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
         } else {
             const embed = createCyberpunkEmbed(
                 'Data Export',
@@ -192,14 +192,14 @@ async function handleExportData(interaction, db) {
                 `This export contains all your stored data. You can save this for your records.`,
                 colors.info
             );
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
         }
 
     } catch (error) {
         console.error('Error exporting user data:', error);
         await interaction.reply({
             content: '⚠️ Error exporting your data. Please try again.',
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
     }
 }
