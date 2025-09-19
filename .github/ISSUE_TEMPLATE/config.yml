@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🗺️ Roadmap
+    url: https://nellybotdevelopment.featurebase.app/roadmap
+    about: View the development roadmap and planned features
+  - name: 💡 Feature Requests
+    url: https://nellybotdevelopment.featurebase.app
+    about: Submit feature requests and vote on community ideas
+  - name: 💬 GitHub Discussions
+    url: https://github.com/northenfreyja/NellyBot/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 📚 Documentation
+    url: https://github.com/northenfreyja/NellyBot/blob/master/README.md
+    about: Check our documentation and guides

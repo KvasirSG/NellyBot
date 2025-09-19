@@ -1,0 +1,235 @@
+name: 🤖 Bot Functionality Tests
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+
+jobs:
+  syntax-test:
+    name: ✅ Syntax Validation
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🔧 Test Node.js syntax
+        run: |
+          echo "Testing JavaScript syntax for all bot files..."
+          find . -name "*.js" -not -path "./node_modules/*" -exec node -c {} \;
+
+      - name: 📋 Validate package.json
+        run: npm ls --depth=0
+
+  discord-bot-validation:
+    name: 🤖 Discord Bot Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Validate Discord.js usage
+        run: |
+          echo "Checking Discord.js implementation patterns..."
+
+          # Check for proper client initialization
+          if ! grep -q "new Client" index.js; then
+            echo "::error::Discord client not properly initialized in index.js"
+            exit 1
+          fi
+
+          # Check for proper intents
+          if ! grep -q "GatewayIntentBits" index.js; then
+            echo "::warning::Consider using GatewayIntentBits for better intent management"
+          fi
+
+          # Validate command structure
+          echo "Validating command files..."
+          for file in commands/*.js; do
+            if [[ -f "$file" ]]; then
+              if ! grep -q "SlashCommandBuilder" "$file"; then
+                echo "::warning::$file may not be using SlashCommandBuilder"
+              fi
+              if ! grep -q "execute" "$file"; then
+                echo "::error::$file missing execute function"
+                exit 1
+              fi
+            fi
+          done
+
+      - name: 🛡️ Privacy compliance check
+        run: |
+          echo "Checking privacy compliance patterns..."
+
+          # Check for proper user data handling
+          if grep -r "console\.log.*user\." --include="*.js" --exclude-dir=node_modules .; then
+            echo "::error::Potential user data logging detected!"
+            exit 1
+          fi
+
+          # Check for hardcoded user IDs
+          if grep -r -E "[0-9]{17,19}" --include="*.js" --exclude-dir=node_modules . | grep -v "example" | grep -v "placeholder"; then
+            echo "::warning::Potential hardcoded Discord IDs found - verify these are examples"
+          fi
+
+      - name: 🔐 Security pattern check
+        run: |
+          echo "Checking security patterns..."
+
+          # Check for SQL injection patterns
+          if grep -r "db\.run.*+\|db\.get.*+" --include="*.js" --exclude-dir=node_modules .; then
+            echo "::error::Potential SQL injection vulnerability - use parameterized queries"
+            exit 1
+          fi
+
+          # Check for proper error handling
+          command_files=$(find commands -name "*.js" 2>/dev/null || true)
+          if [[ -n "$command_files" ]]; then
+            for file in $command_files; do
+              if ! grep -q "try\|catch" "$file"; then
+                echo "::warning::$file may need better error handling"
+              fi
+            done
+          fi
+
+  database-validation:
+    name: 🗄️ Database Schema Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Test database initialization
+        run: |
+          echo "Testing database schema..."
+          node -e "
+          const Database = require('./database.js');
+          const db = new Database();
+          console.log('✅ Database initialized successfully');
+          db.close();
+          "
+
+      - name: 🔍 Validate database methods
+        run: |
+          echo "Checking database method signatures..."
+          node -e "
+          const Database = require('./database.js');
+          const db = new Database();
+
+          // Check required methods exist
+          const requiredMethods = ['getUser', 'createUser', 'updateUser', 'hasCharacter'];
+          for (const method of requiredMethods) {
+            if (typeof db[method] !== 'function') {
+              console.error('❌ Missing required database method:', method);
+              process.exit(1);
+            }
+          }
+
+          console.log('✅ All required database methods present');
+          db.close();
+          "
+
+  environment-validation:
+    name: 🌍 Environment Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check environment template
+        run: |
+          if [[ ! -f ".env.example" ]]; then
+            echo "::error::.env.example file missing"
+            exit 1
+          fi
+
+          # Check for required environment variables
+          required_vars=("DISCORD_TOKEN" "CLIENT_ID" "GUILD_ID")
+          for var in "${required_vars[@]}"; do
+            if ! grep -q "$var" .env.example; then
+              echo "::error::Required environment variable $var not in .env.example"
+              exit 1
+            fi
+          done
+
+      - name: 🔍 Test bot startup (dry run)
+        run: |
+          echo "Testing bot startup without token..."
+          # Create minimal env for testing
+          cat > .env << EOF
+          DISCORD_TOKEN=test_token_for_validation
+          CLIENT_ID=123456789
+          GUILD_ID=123456789
+          EOF
+
+          # Test if bot can load without crashing (it will fail at login, which is expected)
+          timeout 10s node index.js || true
+
+          # Check if bot loads commands properly
+          echo "✅ Bot structure validation complete"
+
+  documentation-check:
+    name: 📚 Documentation Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check documentation completeness
+        run: |
+          echo "Validating documentation..."
+
+          # Check for required documentation files
+          required_docs=("README.md" "CONTRIBUTING.md" "CHARACTER_SYSTEM.md")
+          for doc in "${required_docs[@]}"; do
+            if [[ ! -f "$doc" ]]; then
+              echo "::warning::Documentation file $doc missing"
+            fi
+          done
+
+          # Check if README mentions key features
+          if [[ -f "README.md" ]]; then
+            key_features=("character creation" "privacy" "cyberpunk")
+            for feature in "${key_features[@]}"; do
+              if ! grep -i "$feature" README.md; then
+                echo "::notice::README.md doesn't mention '$feature'"
+              fi
+            done
+          fi

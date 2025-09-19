@@ -1,0 +1,275 @@
+name: 📋 Issue Management
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled]
+  issue_comment:
+    types: [created]
+
+jobs:
+  # Auto-label new issues
+  auto-label:
+    name: 🏷️ Auto-label Issues
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    permissions:
+      issues: write
+
+    steps:
+      - name: 🏷️ Add labels based on content
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const body = issue.body ? issue.body.toLowerCase() : '';
+            const labels = [];
+
+            // Auto-label based on title keywords
+            if (title.includes('[bug]') || title.includes('bug') || title.includes('error') || title.includes('issue')) {
+              labels.push('bug');
+            }
+            if (title.includes('[feature]') || title.includes('feature') || title.includes('enhancement')) {
+              labels.push('enhancement');
+            }
+            if (title.includes('[question]') || title.includes('question') || title.includes('help')) {
+              labels.push('question');
+            }
+
+            // Auto-label based on content
+            if (body.includes('character creation') || body.includes('jack-in')) {
+              labels.push('character-system');
+            }
+            if (body.includes('privacy') || body.includes('gdpr') || body.includes('data')) {
+              labels.push('privacy');
+            }
+            if (body.includes('hack') || body.includes('hacking')) {
+              labels.push('hacking-system');
+            }
+            if (body.includes('admin') || body.includes('permission')) {
+              labels.push('admin');
+            }
+            if (body.includes('database') || body.includes('sqlite')) {
+              labels.push('database');
+            }
+            if (body.includes('discord') || body.includes('interaction') || body.includes('command')) {
+              labels.push('discord-integration');
+            }
+
+            // Priority labels based on keywords
+            if (title.includes('critical') || body.includes('critical') || body.includes('crash')) {
+              labels.push('priority/high');
+            } else if (title.includes('urgent') || body.includes('security') || body.includes('data loss')) {
+              labels.push('priority/high');
+            } else if (title.includes('minor') || body.includes('cosmetic')) {
+              labels.push('priority/low');
+            } else {
+              labels.push('priority/medium');
+            }
+
+            // Add needs-triage label for all new issues
+            labels.push('needs-triage');
+
+            // Apply labels
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labels
+              });
+            }
+
+  # Welcome new contributors
+  welcome-contributor:
+    name: 👋 Welcome New Contributors
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    permissions:
+      issues: write
+
+    steps:
+      - name: 👋 Welcome message for first-time contributors
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Check if this is the user's first issue
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator: context.payload.issue.user.login,
+              state: 'all'
+            });
+
+            if (issues.length === 1) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                body: `👋 Welcome to NellyBot, @${context.payload.issue.user.login}!
+
+Thanks for opening your first issue. Here are some helpful resources:
+
+🤖 **About NellyBot**: This is a cyberpunk-themed Discord bot with RPG elements and privacy-first character creation.
+
+📚 **Resources**:
+- 📖 [Documentation](https://github.com/northenfreyja/NellyBot/blob/master/README.md)
+- 🗺️ [Roadmap](https://nellybotdevelopment.featurebase.app/roadmap)
+- 💡 [Feature Requests](https://nellybotdevelopment.featurebase.app)
+- 🤝 [Contributing Guidelines](https://github.com/northenfreyja/NellyBot/blob/master/CONTRIBUTING.md)
+
+⏰ **Response Time**: We typically respond to issues within 24-48 hours.
+
+🏷️ **Labels**: Your issue has been automatically labeled based on its content. A maintainer will review and adjust labels as needed.
+
+Thanks for contributing to the cyberpunk future! 🌃✨`
+              });
+            }
+
+  # Issue validation and feedback
+  issue-validation:
+    name: ✅ Validate Issue Content
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    permissions:
+      issues: write
+
+    steps:
+      - name: 🔍 Check issue completeness
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            const title = issue.title;
+
+            let feedback = [];
+            let needsImprovement = false;
+
+            // Check title quality
+            if (title.length < 10) {
+              feedback.push('📝 **Title**: Consider making the title more descriptive (current: ' + title.length + ' characters)');
+              needsImprovement = true;
+            }
+
+            // Check for template usage
+            if (!body.includes('##') && !body.includes('**')) {
+              feedback.push('📋 **Template**: Consider using one of our issue templates for better organization');
+              needsImprovement = true;
+            }
+
+            // Check for reproduction steps (for bugs)
+            if ((title.toLowerCase().includes('bug') || title.toLowerCase().includes('error')) &&
+                !body.toLowerCase().includes('reproduce') && !body.toLowerCase().includes('steps')) {
+              feedback.push('🔄 **Reproduction Steps**: For bug reports, please include steps to reproduce the issue');
+              needsImprovement = true;
+            }
+
+            // Check for environment info (for bugs)
+            if ((title.toLowerCase().includes('bug') || title.toLowerCase().includes('error')) &&
+                !body.toLowerCase().includes('node') && !body.toLowerCase().includes('version')) {
+              feedback.push('🖥️ **Environment**: Please include your Node.js version and operating system');
+              needsImprovement = true;
+            }
+
+            // Check for privacy considerations
+            if (body.toLowerCase().includes('user data') || body.toLowerCase().includes('database') ||
+                body.toLowerCase().includes('character')) {
+              feedback.push('🛡️ **Privacy Note**: Please ensure no actual user data is included in this issue');
+            }
+
+            // Provide feedback if needed
+            if (feedback.length > 0) {
+              const comment = `🤖 **Automated Issue Review**
+
+${needsImprovement ? '⚠️ This issue could be improved with additional information:' : 'ℹ️ Some helpful notes:'}
+
+${feedback.map(item => '- ' + item).join('\n')}
+
+${needsImprovement ? '\n📝 **Next Steps**: Please consider updating your issue with the suggested information. This will help us provide better assistance!' : ''}
+
+✅ **Good to know**: Your issue has been received and will be reviewed by a maintainer soon.
+
+*This is an automated message to help improve issue quality.*`;
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: comment
+              });
+            }
+
+  # Stale issue management
+  stale-issues:
+    name: 🕰️ Manage Stale Issues
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened' || github.event.action == 'edited'
+
+    steps:
+      - name: 🏷️ Add stale management labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // This job sets up the issue for future stale management
+            // The actual stale management can be handled by a separate scheduled workflow
+            console.log('Issue opened/edited - stale management tracking initialized');
+
+  # Feature request redirection
+  feature-redirect:
+    name: 🔄 Redirect Feature Requests
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    permissions:
+      issues: write
+
+    steps:
+      - name: 🔄 Redirect to Featurebase
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+
+            // Check if this looks like a feature request
+            if (title.includes('[feature]') || title.includes('feature request') ||
+                title.includes('enhancement') || title.includes('add') ||
+                body.includes('feature request') || body.includes('new feature')) {
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `🚀 **Feature Request Detected**
+
+Thank you for your feature suggestion! To better manage and prioritize feature requests, we use a dedicated platform:
+
+🌟 **Please submit your feature request here**: https://nellybotdevelopment.featurebase.app
+
+**Benefits of using our feature portal**:
+- 🗳️ **Community voting** on features
+- 🗺️ **Roadmap integration**
+- 📊 **Better tracking** and prioritization
+- 💬 **Discussion** with other users
+
+**What happens next**:
+1. Submit your idea on Featurebase
+2. The community can vote and discuss
+3. Popular features get prioritized on our roadmap
+4. You'll be notified of implementation progress
+
+This GitHub issue will be closed in favor of the Featurebase system. Thank you for understanding! 🤖
+
+---
+*If this is actually a bug report or question, please let us know and we'll reopen it.*`
+              });
+
+              // Add label for tracking
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['redirect-to-featurebase']
+              });
+            }
