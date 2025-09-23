@@ -1,6 +1,7 @@
 /**
  * Permission utility functions for bot ownership and admin checks
  */
+const logtail = require('./logger');
 
 /**
  * Check if a user is the bot owner or team member
@@ -26,7 +27,11 @@ async function isOwner(client, userId) {
 
         return false;
     } catch (error) {
-        console.error('Error checking bot ownership:', error);
+        logtail.error('Error checking bot ownership', {
+            error: error.message,
+            stack: error.stack,
+            userId: userId
+        });
         return false;
     }
 }

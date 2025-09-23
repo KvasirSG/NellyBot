@@ -1,4 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
+const logtail = require('./utils/logger');
 
 class Database {
     constructor() {
@@ -69,7 +70,7 @@ class Database {
                 requirements TEXT
             )`);
 
-            console.log('🔌 Database initialized with cyberpunk RPG schema');
+            logtail.info('🔌 Database initialized with cyberpunk RPG schema');
         });
     }
 
