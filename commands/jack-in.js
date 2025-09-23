@@ -6,6 +6,7 @@ const {
     createCharacterCreationEmbed,
     createCharacterCreationButton
 } = require('../utils/privacy');
+const logtail = require('../utils/logger');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -48,7 +49,12 @@ module.exports = {
             await interaction.reply({ embeds: [embed], components: [buttons], flags: MessageFlags.Ephemeral });
 
         } catch (error) {
-            console.error('Error in jack-in command:', error);
+            logtail.error('Error in jack-in command', {
+                error: error.message,
+                stack: error.stack,
+                userId: interaction.user.id,
+                username: interaction.user.username
+            });
             const embed = createCyberpunkEmbed(
                 'Neural Interface Error',
                 '⚠️ **CONNECTION FAILED**\n\nThere was an error initializing your neural interface. Please try again.',

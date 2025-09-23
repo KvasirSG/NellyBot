@@ -1,5 +1,6 @@
 const { createCharacterRequiredEmbed } = require('./character');
 const { MessageFlags } = require('discord.js');
+const logtail = require('./logger');
 
 /**
  * Command locking utility to ensure users have created characters before using commands
@@ -29,7 +30,7 @@ async function canUseCommand(db, interaction) {
         const characterStatus = await db.hasCharacter(interaction.user.id);
         return characterStatus.hasCharacter;
     } catch (error) {
-        console.error('Error checking character status:', error);
+        logtail.error('Error checking character status:', { error: error.message, stack: error.stack, userId: interaction.user.id });
         return false;
     }
 }

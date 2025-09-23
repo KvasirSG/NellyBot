@@ -2,6 +2,8 @@ require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits, REST, Routes } = require('discord.js');
+const logtail = require('./utils/logger');
+const heartbeat = require('./utils/heartbeat');
 const Database = require('./database');
 
 const client = new Client({
@@ -29,9 +31,9 @@ for (const file of commandFiles) {
     if ('data' in command && 'execute' in command) {
         client.commands.set(command.data.name, command);
         commands.push(command.data.toJSON());
-        console.log(`🔧 Loaded command: ${command.data.name}`);
+        logtail.info(`🔧 Loaded command: ${command.data.name}`, { command: command.data.name });
     } else {
-        console.log(`⚠️ The command at ${filePath} is missing a required "data" or "execute" property.`);
+        logtail.warn(`⚠️ The command at ${filePath} is missing a required "data" or "execute" property.`, { filePath });
     }
 }
 
@@ -48,7 +50,7 @@ for (const file of eventFiles) {
     } else {
         client.on(event.name, (...args) => event.execute(...args, client, db));
     }
-    console.log(`📡 Loaded event: ${event.name}`);
+    logtail.info(`📡 Loaded event: ${event.name}`, { event: event.name });
 }
 
 // Register slash commands
@@ -56,7 +58,7 @@ async function deployCommands() {
     const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 
     try {
-        console.log('🔄 Started refreshing application (/) commands.');
+        logtail.info('🔄 Started refreshing application (/) commands.');
 
         // Register commands to specific guild for faster updates during development
         if (process.env.GUILD_ID) {
@@ -64,26 +66,30 @@ async function deployCommands() {
                 Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
                 { body: commands }
             );
-            console.log('✅ Successfully reloaded application (/) commands for development guild.');
+            logtail.info('✅ Successfully reloaded application (/) commands for development guild.', { guildId: process.env.GUILD_ID });
         } else {
             // Register globally if no guild ID specified
             await rest.put(
                 Routes.applicationCommands(process.env.CLIENT_ID),
                 { body: commands }
             );
-            console.log('✅ Successfully reloaded application (/) commands globally.');
+            logtail.info('✅ Successfully reloaded application (/) commands globally.');
         }
     } catch (error) {
-        console.error('❌ Error deploying commands:', error);
+        logtail.error('❌ Error deploying commands:', error);
     }
 }
 
 // Enhanced ready event
 client.once('clientReady', async () => {
-    console.log(`🤖 ${client.user.tag} is now online in Night City!`);
-    console.log('🔌 Cyberpunk RPG Bot initialized');
-    console.log(`📊 Monitoring ${client.guilds.cache.size} server(s)`);
-    console.log(`👥 Serving ${client.users.cache.size} users`);
+    logtail.info(`🤖 ${client.user.tag} is now online in Night City!`, {
+        bot: client.user.tag,
+        guilds: client.guilds.cache.size,
+        users: client.users.cache.size
+    });
+    logtail.info('🔌 Cyberpunk RPG Bot initialized');
+    logtail.info(`📊 Monitoring ${client.guilds.cache.size} server(s)`, { guilds: client.guilds.cache.size });
+    logtail.info(`👥 Serving ${client.users.cache.size} users`, { users: client.users.cache.size });
 
     // Set bot status
     client.user.setPresence({
@@ -92,20 +98,27 @@ client.once('clientReady', async () => {
     });
 
     await deployCommands();
+
+    // Start heartbeat monitoring
+    heartbeat.start();
 });
 
 // Enhanced error handling
 client.on('error', error => {
-    console.error('🚨 Discord client error:', error);
+    logtail.error('🚨 Discord client error:', error);
+    heartbeat.reportFailure(`Discord client error: ${error.message}`, 1).catch(console.error);
 });
 
 process.on('unhandledRejection', error => {
-    console.error('🚨 Unhandled promise rejection:', error);
+    logtail.error('🚨 Unhandled promise rejection:', error);
+    heartbeat.reportFailure(`Unhandled promise rejection: ${error.message}`, 2).catch(console.error);
 });
 
 // Graceful shutdown
 const gracefulShutdown = () => {
-    console.log('🔌 Disconnecting from the matrix...');
+    logtail.info('🔌 Disconnecting from the matrix...');
+    heartbeat.stop();
+    logtail.flush();
     db.close();
     client.destroy();
     process.exit(0);
@@ -116,6 +129,8 @@ process.on('SIGTERM', gracefulShutdown);
 
 // Login
 client.login(process.env.DISCORD_TOKEN).catch(error => {
-    console.error('❌ Failed to login:', error);
+    logtail.error('❌ Failed to login:', error);
+    heartbeat.reportFailure(`Failed to login: ${error.message}`, 3).catch(console.error);
+    logtail.flush();
     process.exit(1);
 });

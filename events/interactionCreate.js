@@ -1,6 +1,7 @@
 const { createCyberpunkEmbed, colors } = require('../utils/embeds');
 const { MessageFlags } = require('discord.js');
 const { checkCommandAccess } = require('../utils/commandLock');
+const logtail = require('../utils/logger');
 
 module.exports = {
     name: 'interactionCreate',
@@ -9,7 +10,7 @@ module.exports = {
             const command = client.commands.get(interaction.commandName);
 
             if (!command) {
-                console.error(`No command matching ${interaction.commandName} was found.`);
+                logtail.error(`No command matching ${interaction.commandName} was found.`, { commandName: interaction.commandName, userId: interaction.user.id });
                 return;
             }
 
@@ -19,7 +20,7 @@ module.exports = {
                     await command.execute(interaction, db);
                 });
             } catch (error) {
-                console.error(`Error executing ${interaction.commandName}:`, error);
+                logtail.error(`Error executing ${interaction.commandName}:`, { error: error.message, stack: error.stack, commandName: interaction.commandName, userId: interaction.user.id });
 
                 const errorMessage = {
                     content: '⚠️ **SYSTEM ERROR**: Failed to execute command. Neural pathways may be unstable.',
@@ -36,7 +37,7 @@ module.exports = {
             try {
                 await handleButtonInteraction(interaction, db);
             } catch (error) {
-                console.error('Error handling button interaction:', error);
+                logtail.error('Error handling button interaction:', { error: error.message, stack: error.stack, customId: interaction.customId, userId: interaction.user.id });
 
                 const errorMessage = {
                     content: '⚠️ **INTERFACE ERROR**: Button malfunction detected.',
@@ -53,7 +54,7 @@ module.exports = {
             try {
                 await handleSelectMenuInteraction(interaction, db);
             } catch (error) {
-                console.error('Error handling select menu interaction:', error);
+                logtail.error('Error handling select menu interaction:', { error: error.message, stack: error.stack, customId: interaction.customId, userId: interaction.user.id });
 
                 const errorMessage = {
                     content: '⚠️ **INTERFACE ERROR**: Menu malfunction detected.',
@@ -70,7 +71,7 @@ module.exports = {
             try {
                 await handleModalSubmit(interaction, db);
             } catch (error) {
-                console.error('Error handling modal submit:', error);
+                logtail.error('Error handling modal submit:', { error: error.message, stack: error.stack, customId: interaction.customId, userId: interaction.user.id });
 
                 const errorMessage = {
                     content: '⚠️ **INTERFACE ERROR**: Modal processing failed.',
