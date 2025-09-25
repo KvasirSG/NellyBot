@@ -2,8 +2,11 @@ const { Logtail } = require('@logtail/node');
 
 let logtail = null;
 
+// Check if Betterstack integration is enabled
+const isBetterstackEnabled = process.env.BETTERSTACK_ENABLED !== 'false';
+
 // Initialize logger with token and endpoint from environment
-if (process.env.LOGTAIL_SOURCE_TOKEN) {
+if (isBetterstackEnabled && process.env.LOGTAIL_SOURCE_TOKEN) {
     const config = {};
 
     if (process.env.LOGTAIL_INGESTING_HOST) {
@@ -14,7 +17,10 @@ if (process.env.LOGTAIL_SOURCE_TOKEN) {
 
     logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN, config);
 } else {
-    // Fallback to console if no token provided
+    // Fallback to console if Betterstack is disabled or no token provided
+    const reason = !isBetterstackEnabled ? 'Betterstack integration disabled' : 'No Logtail token provided';
+    console.log(`📝 Logger: Using console fallback (${reason})`);
+
     logtail = {
         info: console.log,
         warn: console.warn,

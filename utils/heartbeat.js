@@ -5,13 +5,17 @@ const logtail = require('./logger');
 
 class HeartbeatMonitor {
     constructor() {
+        // Check if Betterstack integration is enabled
+        const isBetterstackEnabled = process.env.BETTERSTACK_ENABLED !== 'false';
+
         this.heartbeatURL = process.env.HEARTBEAT_URL;
         this.interval = parseInt(process.env.HEARTBEAT_INTERVAL) || 300000; // Default 5 minutes
         this.intervalId = null;
-        this.isEnabled = !!this.heartbeatURL;
+        this.isEnabled = isBetterstackEnabled && !!this.heartbeatURL;
 
         if (!this.isEnabled) {
-            logtail.info('💓 Heartbeat monitoring disabled - no HEARTBEAT_URL configured');
+            const reason = !isBetterstackEnabled ? 'Betterstack integration disabled' : 'no HEARTBEAT_URL configured';
+            logtail.info(`💓 Heartbeat monitoring disabled - ${reason}`);
         } else {
             logtail.info('💓 Heartbeat monitoring initialized', {
                 interval: this.interval / 1000 + ' seconds',

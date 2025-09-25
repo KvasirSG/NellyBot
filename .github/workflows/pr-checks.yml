@@ -188,6 +188,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      issues: write
 
     steps:
       - name: 📥 Checkout code
@@ -226,7 +227,42 @@ jobs:
             else if (totalChanges < 200) labels.push('size/medium');
             else labels.push('size/large');
 
-            // Add labels
+            // Create labels if they don't exist
+            const labelConfigs = {
+              'code': { color: '0075ca', description: 'Code changes' },
+              'documentation': { color: '0075ca', description: 'Documentation updates' },
+              'configuration': { color: 'd4c5f9', description: 'Configuration changes' },
+              'commands': { color: 'a2eeef', description: 'Bot command changes' },
+              'utilities': { color: '7057ff', description: 'Utility function changes' },
+              'database': { color: 'e99695', description: 'Database related changes' },
+              'size/small': { color: 'c2e0c6', description: 'Small PR (< 50 changes)' },
+              'size/medium': { color: 'fbca04', description: 'Medium PR (50-200 changes)' },
+              'size/large': { color: 'd93f0b', description: 'Large PR (> 200 changes)' }
+            };
+
+            for (const label of labels) {
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label
+                });
+              } catch (error) {
+                if (error.status === 404) {
+                  // Label doesn't exist, create it
+                  await github.rest.issues.createLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label,
+                    color: labelConfigs[label].color,
+                    description: labelConfigs[label].description
+                  });
+                  console.log(`Created label: ${label}`);
+                }
+              }
+            }
+
+            // Add labels to PR
             if (labels.length > 0) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
