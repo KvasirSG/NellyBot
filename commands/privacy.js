@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { createCyberpunkEmbed, colors } = require('../utils/embeds');
+const logtail = require('../utils/logger');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -96,7 +97,12 @@ async function handleViewData(interaction, db) {
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 
     } catch (error) {
-        console.error('Error viewing privacy data:', error);
+        logtail.error('Error viewing privacy data', {
+            error: error.message,
+            stack: error.stack,
+            userId: interaction.user.id,
+            username: interaction.user.username
+        });
         await interaction.reply({
             content: '⚠️ Error retrieving your data. Please try again.',
             flags: MessageFlags.Ephemeral
@@ -136,10 +142,18 @@ async function handleDeleteData(interaction, db) {
 
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 
-        console.log('User data deletion completed successfully');
+        logtail.info('User data deletion completed successfully', {
+            userId: interaction.user.id,
+            username: interaction.user.username
+        });
 
     } catch (error) {
-        console.error('Error deleting user data:', error);
+        logtail.error('Error deleting user data', {
+            error: error.message,
+            stack: error.stack,
+            userId: interaction.user.id,
+            username: interaction.user.username
+        });
         await interaction.reply({
             content: '⚠️ Error deleting your data. Please contact an administrator.',
             flags: MessageFlags.Ephemeral
@@ -196,7 +210,12 @@ async function handleExportData(interaction, db) {
         }
 
     } catch (error) {
-        console.error('Error exporting user data:', error);
+        logtail.error('Error exporting user data', {
+            error: error.message,
+            stack: error.stack,
+            userId: interaction.user.id,
+            username: interaction.user.username
+        });
         await interaction.reply({
             content: '⚠️ Error exporting your data. Please try again.',
             flags: MessageFlags.Ephemeral

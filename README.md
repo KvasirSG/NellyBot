@@ -68,6 +68,11 @@ A privacy-first cyberpunk Discord bot with immersive character creation, RPG mec
    DISCORD_TOKEN=your_discord_bot_token_here
    CLIENT_ID=your_client_id_here
    GUILD_ID=your_guild_id_here  # Optional, for faster command deployment
+
+   # Optional: Betterstack Integration (set to false to disable)
+   BETTERSTACK_ENABLED=true
+   LOGTAIL_SOURCE_TOKEN=your_logtail_source_token_here  # For logging
+   HEARTBEAT_URL=https://uptime.betterstack.com/api/v1/heartbeat/your_token  # For uptime monitoring
    ```
 
 4. **Start the bot**
@@ -182,6 +187,74 @@ The bot features a sophisticated hacking system with three difficulty tiers:
 - Street cred chances: 10%/20%/30% based on difficulty
 - Reward bonuses: +10% per Netrunning level on success
 
+## 📊 Monitoring & Logging (Optional)
+
+NellyBot includes optional Betterstack integration for production monitoring and logging:
+
+### Features
+- **Logtail Logging**: Centralized log collection and analysis with structured data
+- **Heartbeat Monitoring**: Uptime monitoring with automatic failure detection
+- **Graceful Degradation**: Falls back to console logging when disabled
+- **Automatic Error Reporting**: Reports critical failures to Better Stack
+
+### Configuration
+
+#### Quick Disable
+Set `BETTERSTACK_ENABLED=false` in your `.env` file to disable all Betterstack features:
+
+```env
+# Disable Betterstack integration completely
+BETTERSTACK_ENABLED=false
+```
+
+#### Full Setup
+When enabled, configure the following:
+```env
+# Enable Betterstack integration
+BETTERSTACK_ENABLED=true
+LOGTAIL_SOURCE_TOKEN=your_logtail_source_token_here
+LOGTAIL_INGESTING_HOST=your_ingesting_host_here  # Optional
+HEARTBEAT_URL=https://uptime.betterstack.com/api/v1/heartbeat/your_token
+HEARTBEAT_INTERVAL=300000  # 5 minutes in milliseconds
+```
+
+### How it Works
+
+#### Automatic Logging
+All bot activities are logged with structured data:
+```javascript
+logtail.info('🤖 Bot started', {
+    guilds: client.guilds.cache.size,
+    users: client.users.cache.size
+});
+```
+
+#### Heartbeat Monitoring
+The bot automatically:
+- **Sends periodic heartbeats** every 5 minutes (configurable)
+- **Reports failures** when critical errors occur:
+  - Discord client errors (exit code 1)
+  - Unhandled promise rejections (exit code 2)
+  - Login failures (exit code 3)
+- **Stops monitoring** during graceful shutdown
+
+#### Manual Failure Reporting
+You can report failures in your code:
+```javascript
+const heartbeat = require('./utils/heartbeat');
+await heartbeat.reportFailure('Database connection lost');
+```
+
+### Admin Monitoring
+Use `/admin stats` to view the current Betterstack configuration:
+- Master switch status (enabled/disabled)
+- Logtail logging status (active/not configured)
+- Heartbeat monitoring status (active/configured but not running/not configured)
+- Performance metrics and uptime
+
+### Setup Guide
+For detailed setup instructions, see [`docs/BETTERSTACK_SETUP_GUIDE.md`](docs/BETTERSTACK_SETUP_GUIDE.md)
+
 ## 🗂️ Project Structure
 
 ```
@@ -201,6 +274,10 @@ NellyBot/
 │   ├── upgrade.js            # Stat upgrades with confirmations
 │   ├── credits.js            # Credit balance
 │   └── leaderboard.js        # Player rankings
+├── docs/                      # Documentation files
+│   ├── BETTERSTACK_SETUP_GUIDE.md # Betterstack integration setup guide
+│   ├── CHARACTER_SYSTEM.md       # Character creation documentation
+│   └── OWNERSHIP.md             # Bot ownership system documentation
 ├── events/                    # Event handlers
 │   ├── ready.js              # Bot startup and deployment
 │   └── interactionCreate.js  # Command, button, modal, select menu handling
@@ -209,12 +286,13 @@ NellyBot/
 │   ├── privacy.js            # Privacy consent UI components
 │   ├── character.js          # Character creation forms and logic
 │   ├── commandLock.js        # Command access control
-│   └── permissions.js        # Smart ownership detection
+│   ├── permissions.js        # Smart ownership detection
+│   ├── logger.js             # Optional Betterstack logging
+│   ├── heartbeat.js          # Optional heartbeat monitoring
+│   └── config.js             # Configuration utilities
 ├── database.js               # Enhanced SQLite with character & privacy data
 ├── index.js                  # Main bot file with graceful shutdown
-├── CONTRIBUTING.md           # Contribution guidelines
-├── CHARACTER_SYSTEM.md       # Character creation documentation
-├── OWNERSHIP.md             # Bot ownership system documentation
+├── CONTRIBUTING.md           # Contribution guidelines (GitHub integration)
 ├── package.json             # Dependencies and scripts
 ├── .env.example             # Environment template (no hardcoded IDs)
 ├── .gitignore              # Git ignore patterns
@@ -229,7 +307,7 @@ NellyBot/
 2. **Clone your fork** locally
 3. **Install dependencies**: `npm install`
 4. **Set up environment**: Copy `.env.example` to `.env` and add your Discord bot token
-5. **Read the docs**: Check `CONTRIBUTING.md` for detailed guidelines
+5. **Read the docs**: Check [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines
 
 ### Key Development Notes
 

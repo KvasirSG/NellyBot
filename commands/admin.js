@@ -1,6 +1,9 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { createCyberpunkEmbed, colors } = require('../utils/embeds');
 const { canManageBot, isStrictOwner } = require('../utils/permissions');
+const logtail = require('../utils/logger');
+const heartbeat = require('../utils/heartbeat');
+const { getBetterstackConfig } = require('../utils/config');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -89,6 +92,10 @@ async function handleStats(interaction, client, db) {
         const userCount = await db.getUserCount();
         const totalCredits = await db.getTotalCredits();
 
+        // Get Betterstack and heartbeat status
+        const bsConfig = getBetterstackConfig();
+        const heartbeatStatus = heartbeat.getStatus();
+
         const embed = createCyberpunkEmbed(
             'Bot Statistics',
             `📊 **System Status Report**\n\n` +
@@ -99,6 +106,11 @@ async function handleStats(interaction, client, db) {
             `💾 **Database Stats:**\n` +
             `• Registered Users: ${userCount}\n` +
             `• Total Credits in Economy: ${totalCredits.toLocaleString()}\n\n` +
+            `🔧 **Betterstack Integration:**\n` +
+            `• Master Switch: ${bsConfig.enabled ? '✅ Enabled' : '❌ Disabled'}\n` +
+            `• Logtail Logging: ${bsConfig.logtail.configured ? '✅ Active' : '❌ Not configured'}\n` +
+            `• Heartbeat Monitor: ${bsConfig.heartbeat.configured ? (heartbeatStatus.running ? '✅ Active' : '⚠️ Configured but not running') : '❌ Not configured'}\n` +
+            `• Heartbeat Interval: ${bsConfig.heartbeat.interval ? (bsConfig.heartbeat.interval / 1000) + 's' : 'N/A'}\n\n` +
             `⚡ **Performance:**\n` +
             `• Memory Usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB\n` +
             `• Node.js: ${process.version}\n` +
@@ -108,7 +120,7 @@ async function handleStats(interaction, client, db) {
 
         await interaction.reply({ embeds: [embed] });
     } catch (error) {
-        console.error('Error in admin stats:', error);
+        logtail.error('Error in admin stats:', { error: error.message, stack: error.stack, userId: interaction.user.id });
         await interaction.reply({
             content: '⚠️ Error retrieving bot statistics.',
             flags: MessageFlags.Ephemeral
@@ -137,7 +149,7 @@ async function handleShutdown(interaction, client) {
 
     await interaction.reply({ embeds: [embed] });
 
-    console.log('Bot shutdown initiated by owner');
+    logtail.info('Bot shutdown initiated by owner', { userId: interaction.user.id });
 
     // Graceful shutdown after a short delay
     setTimeout(() => {
@@ -184,9 +196,9 @@ async function handleResetUser(interaction, db) {
 
         await interaction.reply({ embeds: [embed] });
 
-        console.log('User profile reset completed by admin');
+        logtail.info('User profile reset completed by admin', { targetUserId: targetUser.id, adminUserId: interaction.user.id });
     } catch (error) {
-        console.error('Error resetting user:', error);
+        logtail.error('Error resetting user:', { error: error.message, stack: error.stack, targetUserId: targetUser.id, adminUserId: interaction.user.id });
         await interaction.reply({
             content: '⚠️ Error resetting user data.',
             flags: MessageFlags.Ephemeral
@@ -236,9 +248,9 @@ async function handleGiveCredits(interaction, db) {
 
         await interaction.reply({ embeds: [embed] });
 
-        console.log(`${amount} credits transferred by admin`);
+        logtail.info(`${amount} credits transferred by admin`, { amount, targetUserId: targetUser.id, adminUserId: interaction.user.id });
     } catch (error) {
-        console.error('Error giving credits:', error);
+        logtail.error('Error giving credits:', { error: error.message, stack: error.stack, targetUserId: targetUser.id, adminUserId: interaction.user.id });
         await interaction.reply({
             content: '⚠️ Error processing credit transfer.',
             flags: MessageFlags.Ephemeral

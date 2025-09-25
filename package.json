@@ -7,12 +7,19 @@
     "start": "node index.js",
     "dev": "node --watch index.js"
   },
-  "keywords": ["discord", "bot", "cyberpunk", "rpg", "gaming"],
+  "keywords": [
+    "discord",
+    "bot",
+    "cyberpunk",
+    "rpg",
+    "gaming"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@logtail/node": "^0.5.6",
     "discord.js": "^14.15.3",
-    "sqlite3": "^5.1.6",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "sqlite3": "^5.1.6"
   }
 }
