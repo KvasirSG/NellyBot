@@ -3,6 +3,7 @@ const { createCyberpunkEmbed, colors } = require('../utils/embeds');
 const { canManageBot, isStrictOwner } = require('../utils/permissions');
 const logtail = require('../utils/logger');
 const heartbeat = require('../utils/heartbeat');
+const { getBetterstackConfig } = require('../utils/config');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -91,7 +92,8 @@ async function handleStats(interaction, client, db) {
         const userCount = await db.getUserCount();
         const totalCredits = await db.getTotalCredits();
 
-        // Get heartbeat status
+        // Get Betterstack and heartbeat status
+        const bsConfig = getBetterstackConfig();
         const heartbeatStatus = heartbeat.getStatus();
 
         const embed = createCyberpunkEmbed(
@@ -104,10 +106,11 @@ async function handleStats(interaction, client, db) {
             `💾 **Database Stats:**\n` +
             `• Registered Users: ${userCount}\n` +
             `• Total Credits in Economy: ${totalCredits.toLocaleString()}\n\n` +
-            `💓 **Heartbeat Monitor:**\n` +
-            `• Status: ${heartbeatStatus.enabled ? (heartbeatStatus.running ? '✅ Active' : '⚠️ Enabled but not running') : '❌ Disabled'}\n` +
-            `• Interval: ${heartbeatStatus.interval / 1000}s\n` +
-            `• Configured: ${heartbeatStatus.enabled ? '✅ Yes' : '❌ No'}\n\n` +
+            `🔧 **Betterstack Integration:**\n` +
+            `• Master Switch: ${bsConfig.enabled ? '✅ Enabled' : '❌ Disabled'}\n` +
+            `• Logtail Logging: ${bsConfig.logtail.configured ? '✅ Active' : '❌ Not configured'}\n` +
+            `• Heartbeat Monitor: ${bsConfig.heartbeat.configured ? (heartbeatStatus.running ? '✅ Active' : '⚠️ Configured but not running') : '❌ Not configured'}\n` +
+            `• Heartbeat Interval: ${bsConfig.heartbeat.interval ? (bsConfig.heartbeat.interval / 1000) + 's' : 'N/A'}\n\n` +
             `⚡ **Performance:**\n` +
             `• Memory Usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB\n` +
             `• Node.js: ${process.version}\n` +
