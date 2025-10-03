@@ -54,10 +54,19 @@ module.exports = {
 
         const displayName = user.street_name || interaction.user.username;
 
+        // Determine profession display
+        let profession = 'Netrunner';
+        if (user.background) {
+            const backgroundData = BACKGROUNDS[user.background];
+            if (backgroundData) {
+                profession = backgroundData.name;
+            }
+        }
+
         const embed = createCyberpunkEmbed(
             `${displayName}'s Neural Profile`,
             characterInfo +
-            `**Level ${user.level}** Netrunner\n` +
+            `**Level ${user.level}** ${profession}\n` +
             `XP: ${user.xp}/${xpToNext}\n[${progressBar}]\n\n` +
             `💰 **Credits:** ${user.credits.toLocaleString()} eddies\n` +
             `❤️ **Health:** ${user.health}/${user.max_health}${healthStatus}\n` +
