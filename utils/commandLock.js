@@ -9,7 +9,8 @@ const logtail = require('./logger');
 // Commands that don't require character creation
 const UNRESTRICTED_COMMANDS = [
     'jack-in',
-    'privacy'
+    'privacy',
+    'about'
 ];
 
 /**

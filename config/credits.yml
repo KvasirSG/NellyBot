@@ -1,0 +1,36 @@
+# NellyBot Credits Configuration
+# This file defines the credits and contributors displayed in the /about command
+
+main_team:
+  - name: "stoic_sirena"
+    role: "Project Lead & Visionary"
+    description: "Head of the project, original idea and creative direction"
+    emoji: "👑"
+  - name: "northenfreyja"
+    role: "Lead Developer & Architect"
+    description: "Created the core bot framework and cyberpunk theme"
+    emoji: "🎯"
+
+contributors:
+  - name: "KvasirSG"
+    role: "Feature Development & Bug Fixes"
+    description: "Profile improvements and system enhancements"
+    emoji: "🚀"
+
+inspiration:
+  - name: "Cyberpunk 2077"
+    role: "Game themes and terminology"
+    emoji: "🌃"
+  - name: "Discord.js Community"
+    role: "Technical guidance"
+    emoji: "🎭"
+  - name: "Open Source Community"
+    role: "Libraries and tools"
+    emoji: "💻"
+
+special_thanks:
+  - "All beta testers and early adopters"
+  - "Discord server administrators"
+  - "Community feedback providers"
+
+footer_message: "Want to contribute? Check out our GitHub repository!"
